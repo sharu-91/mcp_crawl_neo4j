@@ -83,8 +83,8 @@ The server provides essential web crawling and search tools:
 
 1. Clone this repository:
    ```bash
-   git clone https://github.com/coleam00/mcp-crawl4ai-rag.git
-   cd mcp-crawl4ai-rag
+   git clone https://github.com/sharu-91/mcp_crawl_neo4j.git
+   cd mcp_crawl_neo4j
    ```
 
 2. Build the Docker image:
@@ -98,8 +98,8 @@ The server provides essential web crawling and search tools:
 
 1. Clone this repository:
    ```bash
-   git clone https://github.com/coleam00/mcp-crawl4ai-rag.git
-   cd mcp-crawl4ai-rag
+   git clone https://github.com/sharu-91/mcp_crawl_neo4j.git
+   cd mcp_crawl_neo4j
    ```
 
 2. Install uv if you don't have it:
