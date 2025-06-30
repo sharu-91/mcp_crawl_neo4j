@@ -5,33 +5,49 @@ import os
 import concurrent.futures
 from typing import List, Dict, Any, Optional, Tuple
 import json
-from supabase import create_client, Client
 from urllib.parse import urlparse
-import openai
 import re
 import time
 
-# Load OpenAI API key for embeddings
-openai.api_key = os.getenv("OPENAI_API_KEY")
+from dotenv import load_dotenv
+from google.generativeai import configure, GenerativeModel, embed_content
 
-def get_supabase_client() -> Client:
+load_dotenv()
+
+# Load Gemini API key from environment
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+if not GEMINI_API_KEY:
+    raise ValueError("GEMINI_API_KEY must be set in environment variables.")
+configure(api_key=GEMINI_API_KEY)
+
+# Remove fallback for psycopg2: require it for runtime, only fallback for type checkers
+import psycopg2
+from psycopg2.extras import execute_batch, Json, RealDictCursor
+
+def get_postgres_conn():
     """
-    Get a Supabase client with the URL and key from environment variables.
-    
+    Get a Postgres connection using environment variables.
     Returns:
-        Supabase client instance
+        psycopg2 connection instance
     """
-    url = os.getenv("SUPABASE_URL")
-    key = os.getenv("SUPABASE_SERVICE_KEY")
-    
-    if not url or not key:
-        raise ValueError("SUPABASE_URL and SUPABASE_SERVICE_KEY must be set in environment variables")
-    
-    return create_client(url, key)
+    import os
+    host = os.getenv("POSTGRES_HOST", "172.20.34.142")
+    port = os.getenv("POSTGRES_PORT", "5999")
+    db = os.getenv("POSTGRES_DB", "postgres")
+    user = os.getenv("POSTGRES_USER", "postgres")
+    password = os.getenv("POSTGRES_PASSWORD", "postgres")
+    return psycopg2.connect(
+        host=host,
+        port=port,
+        dbname=db,
+        user=user,
+        password=password,
+        cursor_factory=RealDictCursor
+    )
 
 def create_embeddings_batch(texts: List[str]) -> List[List[float]]:
     """
-    Create embeddings for multiple texts in a single API call.
+    Create embeddings for multiple texts in a single API call using Gemini.
     
     Args:
         texts: List of texts to create embeddings for
@@ -47,19 +63,20 @@ def create_embeddings_batch(texts: List[str]) -> List[List[float]]:
     
     for retry in range(max_retries):
         try:
-            response = openai.embeddings.create(
-                model="text-embedding-3-small", # Hardcoding embedding model for now, will change this later to be more dynamic
-                input=texts
+            response = embed_content(
+                model="models/embedding-001",
+                content=texts,
+                task_type="retrieval_document"
             )
-            return [item.embedding for item in response.data]
+            return response['embedding']
         except Exception as e:
             if retry < max_retries - 1:
-                print(f"Error creating batch embeddings (attempt {retry + 1}/{max_retries}): {e}")
+                print(f"Error creating batch embeddings with Gemini (attempt {retry + 1}/{max_retries}): {e}")
                 print(f"Retrying in {retry_delay} seconds...")
                 time.sleep(retry_delay)
                 retry_delay *= 2  # Exponential backoff
             else:
-                print(f"Failed to create batch embeddings after {max_retries} attempts: {e}")
+                print(f"Failed to create batch embeddings with Gemini after {max_retries} attempts: {e}")
                 # Try creating embeddings one by one as fallback
                 print("Attempting to create embeddings individually...")
                 embeddings = []
@@ -67,23 +84,29 @@ def create_embeddings_batch(texts: List[str]) -> List[List[float]]:
                 
                 for i, text in enumerate(texts):
                     try:
-                        individual_response = openai.embeddings.create(
-                            model="text-embedding-3-small",
-                            input=[text]
+                        response = embed_content(
+                            model="models/embedding-001",
+                            content=text,
+                            task_type="retrieval_document"
                         )
-                        embeddings.append(individual_response.data[0].embedding)
+                        embeddings.append(response['embedding'])
                         successful_count += 1
                     except Exception as individual_error:
                         print(f"Failed to create embedding for text {i}: {individual_error}")
-                        # Add zero embedding as fallback
-                        embeddings.append([0.0] * 1536)
+                        # Add zero embedding as fallback (Gemini embedding-001 has 768 dimensions)
+                        embeddings.append([0.0] * 768)
                 
                 print(f"Successfully created {successful_count}/{len(texts)} embeddings individually")
-                return embeddings
+                # Ensure fallback always returns a list of lists
+                if 'embeddings' in locals():
+                    return embeddings
+                else:
+                    return [[0.0] * 768 for _ in texts]
+    return []
 
 def create_embedding(text: str) -> List[float]:
     """
-    Create an embedding for a single text using OpenAI's API.
+    Create an embedding for a single text using Gemini's API.
     
     Args:
         text: Text to create an embedding for
@@ -93,11 +116,11 @@ def create_embedding(text: str) -> List[float]:
     """
     try:
         embeddings = create_embeddings_batch([text])
-        return embeddings[0] if embeddings else [0.0] * 1536
+        return embeddings[0] if embeddings else [0.0] * 768
     except Exception as e:
         print(f"Error creating embedding: {e}")
         # Return empty embedding if there's an error
-        return [0.0] * 1536
+        return [0.0] * 768
 
 def generate_contextual_embedding(full_document: str, chunk: str) -> Tuple[str, bool]:
     """
@@ -112,32 +135,25 @@ def generate_contextual_embedding(full_document: str, chunk: str) -> Tuple[str, 
         - The contextual text that situates the chunk within the document
         - Boolean indicating if contextual embedding was performed
     """
-    model_choice = os.getenv("MODEL_CHOICE")
+    model_choice = os.getenv("MODEL_CHOICE") or "gemini-pro"
     
     try:
         # Create the prompt for generating contextual information
-        prompt = f"""<document> 
-{full_document[:25000]} 
+        prompt = f"""<document>
+{full_document[:25000]}
 </document>
-Here is the chunk we want to situate within the whole document 
-<chunk> 
+Here is the chunk we want to situate within the whole document
+<chunk>
 {chunk}
-</chunk> 
+</chunk>
 Please give a short succinct context to situate this chunk within the overall document for the purposes of improving search retrieval of the chunk. Answer only with the succinct context and nothing else."""
 
-        # Call the OpenAI API to generate contextual information
-        response = openai.chat.completions.create(
-            model=model_choice,
-            messages=[
-                {"role": "system", "content": "You are a helpful assistant that provides concise contextual information."},
-                {"role": "user", "content": prompt}
-            ],
-            temperature=0.3,
-            max_tokens=200
-        )
+        # Call the Gemini API to generate contextual information
+        model = GenerativeModel(model_choice)
+        response = model.generate_content(prompt)
         
         # Extract the generated context
-        context = response.choices[0].message.content.strip()
+        context = response.text.strip()
         
         # Combine the context with the original chunk
         contextual_text = f"{context}\n---\n{chunk}"
@@ -164,8 +180,8 @@ def process_chunk_with_context(args):
     url, content, full_document = args
     return generate_contextual_embedding(full_document, content)
 
-def add_documents_to_supabase(
-    client: Client, 
+def add_documents_to_postgres(
+    conn, 
     urls: List[str], 
     chunk_numbers: List[int],
     contents: List[str], 
@@ -174,11 +190,11 @@ def add_documents_to_supabase(
     batch_size: int = 20
 ) -> None:
     """
-    Add documents to the Supabase crawled_pages table in batches.
+    Add documents to the Postgres crawled_pages table in batches.
     Deletes existing records with the same URLs before inserting to prevent duplicates.
     
     Args:
-        client: Supabase client
+        conn: psycopg2 connection instance
         urls: List of URLs
         chunk_numbers: List of chunk numbers
         contents: List of document contents
@@ -191,15 +207,16 @@ def add_documents_to_supabase(
     
     # Delete existing records for these URLs in a single operation
     try:
-        if unique_urls:
-            # Use the .in_() filter to delete all records with matching URLs
-            client.table("crawled_pages").delete().in_("url", unique_urls).execute()
+        with conn, conn.cursor() as cur:
+            if unique_urls:
+                cur.execute("DELETE FROM crawled_pages WHERE url = ANY(%s)", (unique_urls,))
     except Exception as e:
         print(f"Batch delete failed: {e}. Trying one-by-one deletion as fallback.")
         # Fallback: delete records one by one
         for url in unique_urls:
             try:
-                client.table("crawled_pages").delete().eq("url", url).execute()
+                with conn, conn.cursor() as cur:
+                    cur.execute("DELETE FROM crawled_pages WHERE url = %s", (url,))
             except Exception as inner_e:
                 print(f"Error deleting record for URL {url}: {inner_e}")
                 # Continue with the next URL even if one fails
@@ -283,18 +300,27 @@ def add_documents_to_supabase(
             
             batch_data.append(data)
         
-        # Insert batch into Supabase with retry logic
+        # Insert batch into Postgres with retry logic
         max_retries = 3
         retry_delay = 1.0  # Start with 1 second delay
         
         for retry in range(max_retries):
             try:
-                client.table("crawled_pages").insert(batch_data).execute()
+                with conn, conn.cursor() as cur:
+                    execute_batch(cur, """
+                        INSERT INTO crawled_pages (url, chunk_number, content, metadata, source_id, embedding)
+                        VALUES (%(url)s, %(chunk_number)s, %(content)s, %(metadata)s, %(source_id)s, %(embedding)s)
+                        ON CONFLICT (url, chunk_number) DO UPDATE SET
+                            content=EXCLUDED.content,
+                            metadata=EXCLUDED.metadata,
+                            source_id=EXCLUDED.source_id,
+                            embedding=EXCLUDED.embedding
+                    """, batch_data)
                 # Success - break out of retry loop
                 break
             except Exception as e:
                 if retry < max_retries - 1:
-                    print(f"Error inserting batch into Supabase (attempt {retry + 1}/{max_retries}): {e}")
+                    print(f"Error inserting batch into Postgres (attempt {retry + 1}/{max_retries}): {e}")
                     print(f"Retrying in {retry_delay} seconds...")
                     time.sleep(retry_delay)
                     retry_delay *= 2  # Exponential backoff
@@ -306,7 +332,16 @@ def add_documents_to_supabase(
                     successful_inserts = 0
                     for record in batch_data:
                         try:
-                            client.table("crawled_pages").insert(record).execute()
+                            with conn, conn.cursor() as cur:
+                                cur.execute("""
+                                    INSERT INTO crawled_pages (url, chunk_number, content, metadata, source_id, embedding)
+                                    VALUES (%(url)s, %(chunk_number)s, %(content)s, %(metadata)s, %(source_id)s, %(embedding)s)
+                                    ON CONFLICT (url, chunk_number) DO UPDATE SET
+                                        content=EXCLUDED.content,
+                                        metadata=EXCLUDED.metadata,
+                                        source_id=EXCLUDED.source_id,
+                                        embedding=EXCLUDED.embedding
+                                """, record)
                             successful_inserts += 1
                         except Exception as individual_error:
                             print(f"Failed to insert individual record for URL {record['url']}: {individual_error}")
@@ -315,16 +350,16 @@ def add_documents_to_supabase(
                         print(f"Successfully inserted {successful_inserts}/{len(batch_data)} records individually")
 
 def search_documents(
-    client: Client, 
-    query: str, 
-    match_count: int = 10, 
+    conn,
+    query: str,
+    match_count: int = 10,
     filter_metadata: Optional[Dict[str, Any]] = None
 ) -> List[Dict[str, Any]]:
     """
-    Search for documents in Supabase using vector similarity.
+    Search for documents in Postgres using vector similarity.
     
     Args:
-        client: Supabase client
+        conn: psycopg2 connection instance
         query: Query text
         match_count: Maximum number of results to return
         filter_metadata: Optional metadata filter
@@ -337,19 +372,21 @@ def search_documents(
     
     # Execute the search using the match_crawled_pages function
     try:
-        # Only include filter parameter if filter_metadata is provided and not empty
         params = {
             'query_embedding': query_embedding,
-            'match_count': match_count
+            'match_count': match_count,
+            'filter': json.dumps(filter_metadata) if filter_metadata else None
         }
         
-        # Only add the filter if it's actually provided and not empty
-        if filter_metadata:
-            params['filter'] = filter_metadata  # Pass the dictionary directly, not JSON-encoded
+        with conn, conn.cursor() as cur:
+            # Use ::jsonb to cast the filter parameter
+            cur.execute(
+                "SELECT * FROM match_crawled_pages(%(query_embedding)s, %(match_count)s, %(filter)s::jsonb)",
+                params
+            )
+            result = cur.fetchall()
         
-        result = client.rpc('match_crawled_pages', params).execute()
-        
-        return result.data
+        return result
     except Exception as e:
         print(f"Error searching documents: {e}")
         return []
@@ -449,7 +486,7 @@ def generate_code_example_summary(code: str, context_before: str, context_after:
     Returns:
         A summary of what the code example demonstrates
     """
-    model_choice = os.getenv("MODEL_CHOICE")
+    model_choice = os.getenv("MODEL_CHOICE") or "gemini-pro"
     
     # Create the prompt
     prompt = f"""<context_before>
@@ -468,25 +505,17 @@ Based on the code example and its surrounding context, provide a concise summary
 """
     
     try:
-        response = openai.chat.completions.create(
-            model=model_choice,
-            messages=[
-                {"role": "system", "content": "You are a helpful assistant that provides concise code example summaries."},
-                {"role": "user", "content": prompt}
-            ],
-            temperature=0.3,
-            max_tokens=100
-        )
+        model = GenerativeModel(model_choice)
+        response = model.generate_content(prompt)
         
-        return response.choices[0].message.content.strip()
-    
+        return response.text.strip()
     except Exception as e:
         print(f"Error generating code example summary: {e}")
         return "Code example for demonstration purposes."
 
 
-def add_code_examples_to_supabase(
-    client: Client,
+def add_code_examples_to_postgres(
+    conn,
     urls: List[str],
     chunk_numbers: List[int],
     code_examples: List[str],
@@ -495,10 +524,10 @@ def add_code_examples_to_supabase(
     batch_size: int = 20
 ):
     """
-    Add code examples to the Supabase code_examples table in batches.
+    Add code examples to the Postgres code_examples table in batches.
     
     Args:
-        client: Supabase client
+        conn: psycopg2 connection instance
         urls: List of URLs
         chunk_numbers: List of chunk numbers
         code_examples: List of code example contents
@@ -508,231 +537,130 @@ def add_code_examples_to_supabase(
     """
     if not urls:
         return
-        
-    # Delete existing records for these URLs
     unique_urls = list(set(urls))
-    for url in unique_urls:
-        try:
-            client.table('code_examples').delete().eq('url', url).execute()
-        except Exception as e:
-            print(f"Error deleting existing code examples for {url}: {e}")
-    
-    # Process in batches
+    with conn, conn.cursor() as cur:
+        for url in unique_urls:
+            cur.execute("DELETE FROM code_examples WHERE url = %s", (url,))
     total_items = len(urls)
     for i in range(0, total_items, batch_size):
         batch_end = min(i + batch_size, total_items)
         batch_texts = []
-        
-        # Create combined texts for embedding (code + summary)
         for j in range(i, batch_end):
             combined_text = f"{code_examples[j]}\n\nSummary: {summaries[j]}"
             batch_texts.append(combined_text)
-        
-        # Create embeddings for the batch
         embeddings = create_embeddings_batch(batch_texts)
-        
-        # Check if embeddings are valid (not all zeros)
-        valid_embeddings = []
-        for embedding in embeddings:
-            if embedding and not all(v == 0.0 for v in embedding):
-                valid_embeddings.append(embedding)
-            else:
-                print(f"Warning: Zero or invalid embedding detected, creating new one...")
-                # Try to create a single embedding as fallback
-                single_embedding = create_embedding(batch_texts[len(valid_embeddings)])
-                valid_embeddings.append(single_embedding)
-        
-        # Prepare batch data
         batch_data = []
-        for j, embedding in enumerate(valid_embeddings):
+        for j, embedding in enumerate(embeddings):
             idx = i + j
-            
-            # Extract source_id from URL
             parsed_url = urlparse(urls[idx])
             source_id = parsed_url.netloc or parsed_url.path
-            
-            batch_data.append({
-                'url': urls[idx],
-                'chunk_number': chunk_numbers[idx],
-                'content': code_examples[idx],
-                'summary': summaries[idx],
-                'metadata': metadatas[idx],  # Store as JSON object, not string
-                'source_id': source_id,
-                'embedding': embedding
-            })
-        
-        # Insert batch into Supabase with retry logic
-        max_retries = 3
-        retry_delay = 1.0  # Start with 1 second delay
-        
-        for retry in range(max_retries):
-            try:
-                client.table('code_examples').insert(batch_data).execute()
-                # Success - break out of retry loop
-                break
-            except Exception as e:
-                if retry < max_retries - 1:
-                    print(f"Error inserting batch into Supabase (attempt {retry + 1}/{max_retries}): {e}")
-                    print(f"Retrying in {retry_delay} seconds...")
-                    time.sleep(retry_delay)
-                    retry_delay *= 2  # Exponential backoff
-                else:
-                    # Final attempt failed
-                    print(f"Failed to insert batch after {max_retries} attempts: {e}")
-                    # Optionally, try inserting records one by one as a last resort
-                    print("Attempting to insert records individually...")
-                    successful_inserts = 0
-                    for record in batch_data:
-                        try:
-                            client.table('code_examples').insert(record).execute()
-                            successful_inserts += 1
-                        except Exception as individual_error:
-                            print(f"Failed to insert individual record for URL {record['url']}: {individual_error}")
-                    
-                    if successful_inserts > 0:
-                        print(f"Successfully inserted {successful_inserts}/{len(batch_data)} records individually")
-        print(f"Inserted batch {i//batch_size + 1} of {(total_items + batch_size - 1)//batch_size} code examples")
+            batch_data.append((
+                urls[idx],
+                chunk_numbers[idx],
+                code_examples[idx],
+                summaries[idx],
+                json.dumps(metadatas[idx]),
+                source_id,
+                embedding
+            ))
+        with conn, conn.cursor() as cur:
+            execute_batch(cur, """
+                INSERT INTO code_examples (url, chunk_number, content, summary, metadata, source_id, embedding)
+                VALUES (%s, %s, %s, %s, %s, %s, %s)
+                ON CONFLICT (url, chunk_number) DO UPDATE SET
+                    content=EXCLUDED.content,
+                    summary=EXCLUDED.summary,
+                    metadata=EXCLUDED.metadata,
+                    source_id=EXCLUDED.source_id,
+                    embedding=EXCLUDED.embedding
+            """, batch_data)
 
-
-def update_source_info(client: Client, source_id: str, summary: str, word_count: int):
+def extract_source_summary(source_id: str, content: str) -> str:
     """
-    Update or insert source information in the sources table.
+    Generate a summary for a source given its content.
     
     Args:
-        client: Supabase client
-        source_id: The source ID (domain)
-        summary: Summary of the source
-        word_count: Total word count for the source
-    """
-    try:
-        # Try to update existing source
-        result = client.table('sources').update({
-            'summary': summary,
-            'total_word_count': word_count,
-            'updated_at': 'now()'
-        }).eq('source_id', source_id).execute()
-        
-        # If no rows were updated, insert new source
-        if not result.data:
-            client.table('sources').insert({
-                'source_id': source_id,
-                'summary': summary,
-                'total_word_count': word_count
-            }).execute()
-            print(f"Created new source: {source_id}")
-        else:
-            print(f"Updated source: {source_id}")
-            
-    except Exception as e:
-        print(f"Error updating source {source_id}: {e}")
-
-
-def extract_source_summary(source_id: str, content: str, max_length: int = 500) -> str:
-    """
-    Extract a summary for a source from its content using an LLM.
-    
-    This function uses the OpenAI API to generate a concise summary of the source content.
-    
-    Args:
-        source_id: The source ID (domain)
-        content: The content to extract a summary from
-        max_length: Maximum length of the summary
+        source_id: The ID of the source
+        content: The content to summarize
         
     Returns:
-        A summary string
+        A summary of the source content
     """
-    # Default summary if we can't extract anything meaningful
-    default_summary = f"Content from {source_id}"
+    model_choice = os.getenv("MODEL_CHOICE") or "gemini-pro"
     
-    if not content or len(content.strip()) == 0:
-        return default_summary
-    
-    # Get the model choice from environment variables
-    model_choice = os.getenv("MODEL_CHOICE")
-    
-    # Limit content length to avoid token limits
-    truncated_content = content[:25000] if len(content) > 25000 else content
-    
-    # Create the prompt for generating the summary
-    prompt = f"""<source_content>
-{truncated_content}
-</source_content>
+    prompt = f"""Based on the following content from the source '{source_id}', provide a concise summary (2-3 sentences) that describes the main topics and purpose of the documentation.
 
-The above content is from the documentation for '{source_id}'. Please provide a concise summary (3-5 sentences) that describes what this library/tool/framework is about. The summary should help understand what the library/tool/framework accomplishes and the purpose.
+<content>
+{content[:5000]}
+</content>
 """
     
     try:
-        # Call the OpenAI API to generate the summary
-        response = openai.chat.completions.create(
-            model=model_choice,
-            messages=[
-                {"role": "system", "content": "You are a helpful assistant that provides concise library/tool/framework summaries."},
-                {"role": "user", "content": prompt}
-            ],
-            temperature=0.3,
-            max_tokens=150
-        )
-        
-        # Extract the generated summary
-        summary = response.choices[0].message.content.strip()
-        
-        # Ensure the summary is not too long
-        if len(summary) > max_length:
-            summary = summary[:max_length] + "..."
-            
-        return summary
-    
+        model = GenerativeModel(model_choice)
+        response = model.generate_content(prompt)
+        return response.text.strip()
     except Exception as e:
-        print(f"Error generating summary with LLM for {source_id}: {e}. Using default summary.")
-        return default_summary
+        print(f"Error generating source summary for {source_id}: {e}")
+        return f"Summary for {source_id}"
 
-
-def search_code_examples(
-    client: Client, 
-    query: str, 
-    match_count: int = 10, 
-    filter_metadata: Optional[Dict[str, Any]] = None,
-    source_id: Optional[str] = None
-) -> List[Dict[str, Any]]:
+def update_source_info_postgres(conn, source_id: str, summary: str, total_words: int) -> None:
     """
-    Search for code examples in Supabase using vector similarity.
+    Update the summary and word count for a source in the sources table.
     
     Args:
-        client: Supabase client
+        conn: psycopg2 connection instance
+        source_id: The ID of the source to update
+        summary: The new summary
+        total_words: The new total word count
+    """
+    with conn, conn.cursor() as cur:
+        cur.execute("""
+            INSERT INTO sources (source_id, summary, total_words)
+            VALUES (%s, %s, %s)
+            ON CONFLICT (source_id) DO UPDATE SET
+                summary = EXCLUDED.summary,
+                total_words = EXCLUDED.total_words,
+                updated_at = NOW()
+        """, (source_id, summary, total_words))
+
+def search_code_examples(
+    conn,
+    query: str,
+    match_count: int = 10,
+    filter_metadata: Optional[Dict[str, Any]] = None
+) -> List[Dict[str, Any]]:
+    """
+    Search for code examples in Postgres using vector similarity.
+    
+    Args:
+        conn: psycopg2 connection instance
         query: Query text
         match_count: Maximum number of results to return
         filter_metadata: Optional metadata filter
-        source_id: Optional source ID to filter results
         
     Returns:
         List of matching code examples
     """
-    # Create a more descriptive query for better embedding match
-    # Since code examples are embedded with their summaries, we should make the query more descriptive
-    enhanced_query = f"Code example for {query}\n\nSummary: Example code showing {query}"
-    
-    # Create embedding for the enhanced query
-    query_embedding = create_embedding(enhanced_query)
+    # Create embedding for the query
+    query_embedding = create_embedding(query)
     
     # Execute the search using the match_code_examples function
     try:
-        # Only include filter parameter if filter_metadata is provided and not empty
         params = {
             'query_embedding': query_embedding,
-            'match_count': match_count
+            'match_count': match_count,
+            'filter': json.dumps(filter_metadata) if filter_metadata else None
         }
         
-        # Only add the filter if it's actually provided and not empty
-        if filter_metadata:
-            params['filter'] = filter_metadata
-            
-        # Add source filter if provided
-        if source_id:
-            params['source_filter'] = source_id
+        with conn, conn.cursor() as cur:
+            # Use ::jsonb to cast the filter parameter
+            cur.execute(
+                "SELECT * FROM match_code_examples(%(query_embedding)s, %(match_count)s, %(filter)s::jsonb)",
+                params
+            )
+            result = cur.fetchall()
         
-        result = client.rpc('match_code_examples', params).execute()
-        
-        return result.data
+        return result
     except Exception as e:
         print(f"Error searching code examples: {e}")
         return []

@@ -4,7 +4,7 @@
   <em>Web Crawling and RAG Capabilities for AI Agents and AI Coding Assistants</em>
 </p>
 
-A powerful implementation of the [Model Context Protocol (MCP)](https://modelcontextprotocol.io) integrated with [Crawl4AI](https://crawl4ai.com) and [Supabase](https://supabase.com/) for providing AI agents and AI coding assistants with advanced web crawling and RAG capabilities.
+A powerful implementation of the [Model Context Protocol (MCP)](https://modelcontextprotocol.io) integrated with [Crawl4AI](https://crawl4ai.com) and [Postgres](https://www.postgresql.org/) for providing AI agents and AI coding assistants with advanced web crawling and RAG capabilities.
 
 With this MCP server, you can <b>scrape anything</b> and then <b>use that knowledge anywhere</b> for RAG.
 
@@ -14,7 +14,7 @@ Consider this GitHub repository a testbed, hence why I haven't been super active
 
 ## Overview
 
-This MCP server provides tools that enable AI agents to crawl websites, store content in a vector database (Supabase), and perform RAG over the crawled content. It follows the best practices for building MCP servers based on the [Mem0 MCP server template](https://github.com/coleam00/mcp-mem0/) I provided on my channel previously.
+This MCP server provides tools that enable AI agents to crawl websites, store content in a vector database (Postgres), and perform RAG over the crawled content. It follows the best practices for building MCP servers based on the [Mem0 MCP server template](https://github.com/coleam00/mcp-mem0/) I provided on my channel previously.
 
 The server includes several advanced RAG strategies that can be enabled to enhance retrieval quality:
 - **Contextual Embeddings** for enriched semantic understanding
@@ -73,8 +73,8 @@ The server provides essential web crawling and search tools:
 
 - [Docker/Docker Desktop](https://www.docker.com/products/docker-desktop/) if running the MCP server as a container (recommended)
 - [Python 3.12+](https://www.python.org/downloads/) if running the MCP server directly through uv
-- [Supabase](https://supabase.com/) (database for RAG)
-- [OpenAI API key](https://platform.openai.com/api-keys) (for generating embeddings)
+- [Postgres](https://www.postgresql.org/) (database for RAG, with pgvector extension)
+- [Gemini API key](https://aistudio.google.com/app/apikey) (for generating embeddings)
 - [Neo4j](https://neo4j.com/) (optional, for knowledge graph functionality) - see [Knowledge Graph Setup](#knowledge-graph-setup) section
 
 ## Installation
@@ -126,11 +126,11 @@ The server provides essential web crawling and search tools:
 
 Before running the server, you need to set up the database with the pgvector extension:
 
-1. Go to the SQL Editor in your Supabase dashboard (create a new project first if necessary)
+1. Connect to your local PostgreSQL database.
 
 2. Create a new query and paste the contents of `crawled_pages.sql`
 
-3. Run the query to create the necessary tables and functions
+3. Run the query to create the necessary tables and functions.
 
 ## Knowledge Graph Setup (Optional)
 
@@ -185,8 +185,8 @@ HOST=0.0.0.0
 PORT=8051
 TRANSPORT=sse
 
-# OpenAI API Configuration
-OPENAI_API_KEY=your_openai_api_key
+# Gemini API Configuration
+GEMINI_API_KEY=your_gemini_api_key
 
 # LLM for summaries and contextual embeddings
 MODEL_CHOICE=gpt-4.1-nano
@@ -198,9 +198,12 @@ USE_AGENTIC_RAG=false
 USE_RERANKING=false
 USE_KNOWLEDGE_GRAPH=false
 
-# Supabase Configuration
-SUPABASE_URL=your_supabase_project_url
-SUPABASE_SERVICE_KEY=your_supabase_service_key
+# Postgres Configuration
+POSTGRES_HOST=172.20.34.142
+POSTGRES_PORT=5999
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=postgres
+POSTGRES_DB=postgres
 
 # Neo4j Configuration (required for knowledge graph functionality)
 NEO4J_URI=bolt://localhost:7687
@@ -363,9 +366,12 @@ Add this server to your MCP configuration for Claude Desktop, Windsurf, or any o
       "args": ["path/to/crawl4ai-mcp/src/crawl4ai_mcp.py"],
       "env": {
         "TRANSPORT": "stdio",
-        "OPENAI_API_KEY": "your_openai_api_key",
-        "SUPABASE_URL": "your_supabase_url",
-        "SUPABASE_SERVICE_KEY": "your_supabase_service_key",
+        "GEMINI_API_KEY": "your_gemini_api_key",
+        "POSTGRES_HOST": "your_postgres_host",
+        "POSTGRES_PORT": "your_postgres_port",
+        "POSTGRES_USER": "your_postgres_user",
+        "POSTGRES_PASSWORD": "your_postgres_password",
+        "POSTGRES_DB": "your_postgres_db",
         "USE_KNOWLEDGE_GRAPH": "false",
         "NEO4J_URI": "bolt://localhost:7687",
         "NEO4J_USER": "neo4j",
@@ -384,10 +390,13 @@ Add this server to your MCP configuration for Claude Desktop, Windsurf, or any o
     "crawl4ai-rag": {
       "command": "docker",
       "args": ["run", "--rm", "-i", 
-               "-e", "TRANSPORT", 
-               "-e", "OPENAI_API_KEY", 
-               "-e", "SUPABASE_URL", 
-               "-e", "SUPABASE_SERVICE_KEY",
+               "-e", "TRANSPORT",
+               "-e", "GEMINI_API_KEY",
+               "-e", "POSTGRES_HOST",
+               "-e", "POSTGRES_PORT",
+               "-e", "POSTGRES_USER",
+               "-e", "POSTGRES_PASSWORD",
+               "-e", "POSTGRES_DB",
                "-e", "USE_KNOWLEDGE_GRAPH",
                "-e", "NEO4J_URI",
                "-e", "NEO4J_USER",
@@ -395,9 +404,12 @@ Add this server to your MCP configuration for Claude Desktop, Windsurf, or any o
                "mcp/crawl4ai"],
       "env": {
         "TRANSPORT": "stdio",
-        "OPENAI_API_KEY": "your_openai_api_key",
-        "SUPABASE_URL": "your_supabase_url",
-        "SUPABASE_SERVICE_KEY": "your_supabase_service_key",
+        "GEMINI_API_KEY": "your_gemini_api_key",
+        "POSTGRES_HOST": "your_postgres_host",
+        "POSTGRES_PORT": "your_postgres_port",
+        "POSTGRES_USER": "your_postgres_user",
+        "POSTGRES_PASSWORD": "your_postgres_password",
+        "POSTGRES_DB": "your_postgres_db",
         "USE_KNOWLEDGE_GRAPH": "false",
         "NEO4J_URI": "bolt://localhost:7687",
         "NEO4J_USER": "neo4j",

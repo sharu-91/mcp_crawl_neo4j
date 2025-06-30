@@ -1,0 +1,272 @@
+{
+  "analysis_metadata": {
+    "script_path": "/Users/sharan.shetty/Documents/sharanpersonal/mcp-crawl4ai-rag/src/utils.py",
+    "analysis_timestamp": "2025-06-30T11:23:27.448156+00:00",
+    "total_imports": 20,
+    "total_classes": 21,
+    "total_methods": 61,
+    "total_attributes": 37,
+    "total_functions": 60
+  },
+  "validation_summary": {
+    "overall_confidence": 1.0,
+    "total_validations": 0,
+    "valid_count": 0,
+    "invalid_count": 0,
+    "uncertain_count": 0,
+    "not_found_count": 0,
+    "hallucination_rate": 0.0
+  },
+  "libraries_analyzed": [
+    {
+      "module_name": "os",
+      "import_status": "UNCERTAIN",
+      "import_confidence": 0.8,
+      "classes_used": [],
+      "methods_called": [],
+      "attributes_accessed": [],
+      "functions_called": []
+    },
+    {
+      "module_name": "concurrent.futures",
+      "import_status": "UNCERTAIN",
+      "import_confidence": 0.8,
+      "classes_used": [],
+      "methods_called": [],
+      "attributes_accessed": [],
+      "functions_called": []
+    },
+    {
+      "module_name": "typing",
+      "import_status": "UNCERTAIN",
+      "import_confidence": 0.8,
+      "classes_used": [],
+      "methods_called": [],
+      "attributes_accessed": [],
+      "functions_called": []
+    },
+    {
+      "module_name": "json",
+      "import_status": "UNCERTAIN",
+      "import_confidence": 0.8,
+      "classes_used": [],
+      "methods_called": [],
+      "attributes_accessed": [],
+      "functions_called": []
+    },
+    {
+      "module_name": "urllib.parse",
+      "import_status": "UNCERTAIN",
+      "import_confidence": 0.8,
+      "classes_used": [
+        {
+          "class_name": "urlparse",
+          "status": "UNCERTAIN",
+          "confidence": 0.8
+        },
+        {
+          "class_name": "urlparse",
+          "status": "UNCERTAIN",
+          "confidence": 0.8
+        }
+      ],
+      "methods_called": [],
+      "attributes_accessed": [
+        {
+          "attribute_name": "netloc",
+          "class_name": "urlparse",
+          "status": "UNCERTAIN",
+          "confidence": 0.8
+        },
+        {
+          "attribute_name": "path",
+          "class_name": "urlparse",
+          "status": "UNCERTAIN",
+          "confidence": 0.8
+        },
+        {
+          "attribute_name": "netloc",
+          "class_name": "urlparse",
+          "status": "UNCERTAIN",
+          "confidence": 0.8
+        },
+        {
+          "attribute_name": "path",
+          "class_name": "urlparse",
+          "status": "UNCERTAIN",
+          "confidence": 0.8
+        }
+      ],
+      "functions_called": []
+    },
+    {
+      "module_name": "re",
+      "import_status": "UNCERTAIN",
+      "import_confidence": 0.8,
+      "classes_used": [],
+      "methods_called": [],
+      "attributes_accessed": [],
+      "functions_called": []
+    },
+    {
+      "module_name": "time",
+      "import_status": "UNCERTAIN",
+      "import_confidence": 0.8,
+      "classes_used": [],
+      "methods_called": [],
+      "attributes_accessed": [],
+      "functions_called": []
+    },
+    {
+      "module_name": "dotenv",
+      "import_status": "UNCERTAIN",
+      "import_confidence": 0.8,
+      "classes_used": [],
+      "methods_called": [],
+      "attributes_accessed": [],
+      "functions_called": [
+        {
+          "function_name": "load_dotenv",
+          "status": "UNCERTAIN",
+          "confidence": 0.8
+        }
+      ]
+    },
+    {
+      "module_name": "google.generativeai",
+      "import_status": "UNCERTAIN",
+      "import_confidence": 0.8,
+      "classes_used": [
+        {
+          "class_name": "GenerativeModel",
+          "status": "UNCERTAIN",
+          "confidence": 0.8
+        },
+        {
+          "class_name": "GenerativeModel",
+          "status": "UNCERTAIN",
+          "confidence": 0.8
+        },
+        {
+          "class_name": "GenerativeModel",
+          "status": "UNCERTAIN",
+          "confidence": 0.8
+        },
+        {
+          "class_name": "embed_content",
+          "status": "UNCERTAIN",
+          "confidence": 0.8
+        },
+        {
+          "class_name": "embed_content",
+          "status": "UNCERTAIN",
+          "confidence": 0.8
+        }
+      ],
+      "methods_called": [
+        {
+          "method_name": "generate_content",
+          "class_name": "GenerativeModel",
+          "status": "UNCERTAIN",
+          "confidence": 0.8
+        },
+        {
+          "method_name": "generate_content",
+          "class_name": "GenerativeModel",
+          "status": "UNCERTAIN",
+          "confidence": 0.8
+        },
+        {
+          "method_name": "generate_content",
+          "class_name": "GenerativeModel",
+          "status": "UNCERTAIN",
+          "confidence": 0.8
+        }
+      ],
+      "attributes_accessed": [
+        {
+          "attribute_name": "generate_content",
+          "class_name": "GenerativeModel",
+          "status": "UNCERTAIN",
+          "confidence": 0.8
+        },
+        {
+          "attribute_name": "generate_content",
+          "class_name": "GenerativeModel",
+          "status": "UNCERTAIN",
+          "confidence": 0.8
+        },
+        {
+          "attribute_name": "generate_content",
+          "class_name": "GenerativeModel",
+          "status": "UNCERTAIN",
+          "confidence": 0.8
+        },
+        {
+          "attribute_name": "text",
+          "class_name": "embed_content",
+          "status": "UNCERTAIN",
+          "confidence": 0.8
+        },
+        {
+          "attribute_name": "text",
+          "class_name": "embed_content",
+          "status": "UNCERTAIN",
+          "confidence": 0.8
+        },
+        {
+          "attribute_name": "text",
+          "class_name": "embed_content",
+          "status": "UNCERTAIN",
+          "confidence": 0.8
+        }
+      ],
+      "functions_called": [
+        {
+          "function_name": "configure",
+          "status": "UNCERTAIN",
+          "confidence": 0.8
+        }
+      ]
+    },
+    {
+      "module_name": "psycopg2",
+      "import_status": "UNCERTAIN",
+      "import_confidence": 0.8,
+      "classes_used": [],
+      "methods_called": [],
+      "attributes_accessed": [],
+      "functions_called": []
+    },
+    {
+      "module_name": "psycopg2.extras",
+      "import_status": "UNCERTAIN",
+      "import_confidence": 0.8,
+      "classes_used": [],
+      "methods_called": [],
+      "attributes_accessed": [],
+      "functions_called": [
+        {
+          "function_name": "execute_batch",
+          "status": "UNCERTAIN",
+          "confidence": 0.8
+        },
+        {
+          "function_name": "execute_batch",
+          "status": "UNCERTAIN",
+          "confidence": 0.8
+        }
+      ]
+    }
+  ],
+  "validation_details": {
+    "valid_items": [],
+    "invalid_items": [],
+    "uncertain_items": [],
+    "not_found_items": []
+  },
+  "hallucinations_detected": [],
+  "recommendations": [
+    "No hallucinations detected in knowledge graph libraries. External library usage appears to be working as expected."
+  ]
+}

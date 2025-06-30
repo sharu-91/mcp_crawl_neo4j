@@ -1,0 +1,708 @@
+{
+  "analysis_metadata": {
+    "script_path": "/Users/sharan.shetty/Documents/sharanpersonal/mcp-crawl4ai-rag/src/crawl4ai_mcp.py",
+    "analysis_timestamp": "2025-06-30T11:22:54.415789+00:00",
+    "total_imports": 49,
+    "total_classes": 49,
+    "total_methods": 244,
+    "total_attributes": 126,
+    "total_functions": 107
+  },
+  "validation_summary": {
+    "overall_confidence": 1.0,
+    "total_validations": 0,
+    "valid_count": 0,
+    "invalid_count": 0,
+    "uncertain_count": 0,
+    "not_found_count": 0,
+    "hallucination_rate": 0.0
+  },
+  "libraries_analyzed": [
+    {
+      "module_name": "mcp.server.fastmcp",
+      "import_status": "UNCERTAIN",
+      "import_confidence": 0.8,
+      "classes_used": [
+        {
+          "class_name": "FastMCP",
+          "status": "UNCERTAIN",
+          "confidence": 0.8
+        }
+      ],
+      "methods_called": [
+        {
+          "method_name": "tool",
+          "class_name": "FastMCP",
+          "status": "UNCERTAIN",
+          "confidence": 0.8
+        },
+        {
+          "method_name": "tool",
+          "class_name": "FastMCP",
+          "status": "UNCERTAIN",
+          "confidence": 0.8
+        },
+        {
+          "method_name": "tool",
+          "class_name": "FastMCP",
+          "status": "UNCERTAIN",
+          "confidence": 0.8
+        },
+        {
+          "method_name": "tool",
+          "class_name": "FastMCP",
+          "status": "UNCERTAIN",
+          "confidence": 0.8
+        },
+        {
+          "method_name": "tool",
+          "class_name": "FastMCP",
+          "status": "UNCERTAIN",
+          "confidence": 0.8
+        },
+        {
+          "method_name": "tool",
+          "class_name": "FastMCP",
+          "status": "UNCERTAIN",
+          "confidence": 0.8
+        },
+        {
+          "method_name": "tool",
+          "class_name": "FastMCP",
+          "status": "UNCERTAIN",
+          "confidence": 0.8
+        },
+        {
+          "method_name": "tool",
+          "class_name": "FastMCP",
+          "status": "UNCERTAIN",
+          "confidence": 0.8
+        },
+        {
+          "method_name": "run_sse_async",
+          "class_name": "FastMCP",
+          "status": "UNCERTAIN",
+          "confidence": 0.8
+        },
+        {
+          "method_name": "run_stdio_async",
+          "class_name": "FastMCP",
+          "status": "UNCERTAIN",
+          "confidence": 0.8
+        }
+      ],
+      "attributes_accessed": [],
+      "functions_called": []
+    },
+    {
+      "module_name": "sentence_transformers",
+      "import_status": "UNCERTAIN",
+      "import_confidence": 0.8,
+      "classes_used": [
+        {
+          "class_name": "CrossEncoder",
+          "status": "UNCERTAIN",
+          "confidence": 0.8
+        }
+      ],
+      "methods_called": [],
+      "attributes_accessed": [],
+      "functions_called": []
+    },
+    {
+      "module_name": "contextlib",
+      "import_status": "UNCERTAIN",
+      "import_confidence": 0.8,
+      "classes_used": [],
+      "methods_called": [],
+      "attributes_accessed": [],
+      "functions_called": []
+    },
+    {
+      "module_name": "collections.abc",
+      "import_status": "UNCERTAIN",
+      "import_confidence": 0.8,
+      "classes_used": [],
+      "methods_called": [],
+      "attributes_accessed": [],
+      "functions_called": []
+    },
+    {
+      "module_name": "dataclasses",
+      "import_status": "UNCERTAIN",
+      "import_confidence": 0.8,
+      "classes_used": [],
+      "methods_called": [],
+      "attributes_accessed": [],
+      "functions_called": []
+    },
+    {
+      "module_name": "typing",
+      "import_status": "UNCERTAIN",
+      "import_confidence": 0.8,
+      "classes_used": [],
+      "methods_called": [],
+      "attributes_accessed": [],
+      "functions_called": []
+    },
+    {
+      "module_name": "urllib.parse",
+      "import_status": "UNCERTAIN",
+      "import_confidence": 0.8,
+      "classes_used": [
+        {
+          "class_name": "urlparse",
+          "status": "UNCERTAIN",
+          "confidence": 0.8
+        },
+        {
+          "class_name": "urlparse",
+          "status": "UNCERTAIN",
+          "confidence": 0.8
+        },
+        {
+          "class_name": "urlparse",
+          "status": "UNCERTAIN",
+          "confidence": 0.8
+        }
+      ],
+      "methods_called": [],
+      "attributes_accessed": [
+        {
+          "attribute_name": "netloc",
+          "class_name": "urlparse",
+          "status": "UNCERTAIN",
+          "confidence": 0.8
+        },
+        {
+          "attribute_name": "path",
+          "class_name": "urlparse",
+          "status": "UNCERTAIN",
+          "confidence": 0.8
+        },
+        {
+          "attribute_name": "netloc",
+          "class_name": "urlparse",
+          "status": "UNCERTAIN",
+          "confidence": 0.8
+        },
+        {
+          "attribute_name": "path",
+          "class_name": "urlparse",
+          "status": "UNCERTAIN",
+          "confidence": 0.8
+        },
+        {
+          "attribute_name": "netloc",
+          "class_name": "urlparse",
+          "status": "UNCERTAIN",
+          "confidence": 0.8
+        },
+        {
+          "attribute_name": "path",
+          "class_name": "urlparse",
+          "status": "UNCERTAIN",
+          "confidence": 0.8
+        }
+      ],
+      "functions_called": [
+        {
+          "function_name": "urldefrag",
+          "status": "UNCERTAIN",
+          "confidence": 0.8
+        },
+        {
+          "function_name": "urlparse",
+          "status": "UNCERTAIN",
+          "confidence": 0.8
+        }
+      ]
+    },
+    {
+      "module_name": "xml.etree",
+      "import_status": "UNCERTAIN",
+      "import_confidence": 0.8,
+      "classes_used": [],
+      "methods_called": [],
+      "attributes_accessed": [],
+      "functions_called": []
+    },
+    {
+      "module_name": "dotenv",
+      "import_status": "UNCERTAIN",
+      "import_confidence": 0.8,
+      "classes_used": [],
+      "methods_called": [],
+      "attributes_accessed": [],
+      "functions_called": [
+        {
+          "function_name": "load_dotenv",
+          "status": "UNCERTAIN",
+          "confidence": 0.8
+        }
+      ]
+    },
+    {
+      "module_name": "pathlib",
+      "import_status": "UNCERTAIN",
+      "import_confidence": 0.8,
+      "classes_used": [
+        {
+          "class_name": "Path",
+          "status": "UNCERTAIN",
+          "confidence": 0.8
+        },
+        {
+          "class_name": "Path",
+          "status": "UNCERTAIN",
+          "confidence": 0.8
+        }
+      ],
+      "methods_called": [],
+      "attributes_accessed": [],
+      "functions_called": []
+    },
+    {
+      "module_name": "requests",
+      "import_status": "UNCERTAIN",
+      "import_confidence": 0.8,
+      "classes_used": [],
+      "methods_called": [],
+      "attributes_accessed": [],
+      "functions_called": []
+    },
+    {
+      "module_name": "asyncio",
+      "import_status": "UNCERTAIN",
+      "import_confidence": 0.8,
+      "classes_used": [],
+      "methods_called": [],
+      "attributes_accessed": [],
+      "functions_called": []
+    },
+    {
+      "module_name": "json",
+      "import_status": "UNCERTAIN",
+      "import_confidence": 0.8,
+      "classes_used": [],
+      "methods_called": [],
+      "attributes_accessed": [],
+      "functions_called": []
+    },
+    {
+      "module_name": "os",
+      "import_status": "UNCERTAIN",
+      "import_confidence": 0.8,
+      "classes_used": [],
+      "methods_called": [],
+      "attributes_accessed": [],
+      "functions_called": []
+    },
+    {
+      "module_name": "re",
+      "import_status": "UNCERTAIN",
+      "import_confidence": 0.8,
+      "classes_used": [],
+      "methods_called": [],
+      "attributes_accessed": [],
+      "functions_called": []
+    },
+    {
+      "module_name": "concurrent.futures",
+      "import_status": "UNCERTAIN",
+      "import_confidence": 0.8,
+      "classes_used": [],
+      "methods_called": [],
+      "attributes_accessed": [],
+      "functions_called": []
+    },
+    {
+      "module_name": "sys",
+      "import_status": "UNCERTAIN",
+      "import_confidence": 0.8,
+      "classes_used": [],
+      "methods_called": [],
+      "attributes_accessed": [],
+      "functions_called": []
+    },
+    {
+      "module_name": "crawl4ai",
+      "import_status": "UNCERTAIN",
+      "import_confidence": 0.8,
+      "classes_used": [
+        {
+          "class_name": "BrowserConfig",
+          "status": "UNCERTAIN",
+          "confidence": 0.8
+        },
+        {
+          "class_name": "AsyncWebCrawler",
+          "status": "UNCERTAIN",
+          "confidence": 0.8
+        },
+        {
+          "class_name": "CrawlerRunConfig",
+          "status": "UNCERTAIN",
+          "confidence": 0.8
+        },
+        {
+          "class_name": "CrawlerRunConfig",
+          "status": "UNCERTAIN",
+          "confidence": 0.8
+        },
+        {
+          "class_name": "MemoryAdaptiveDispatcher",
+          "status": "UNCERTAIN",
+          "confidence": 0.8
+        },
+        {
+          "class_name": "CrawlerRunConfig",
+          "status": "UNCERTAIN",
+          "confidence": 0.8
+        },
+        {
+          "class_name": "MemoryAdaptiveDispatcher",
+          "status": "UNCERTAIN",
+          "confidence": 0.8
+        },
+        {
+          "class_name": "CrawlerRunConfig",
+          "status": "UNCERTAIN",
+          "confidence": 0.8
+        }
+      ],
+      "methods_called": [
+        {
+          "method_name": "__aenter__",
+          "class_name": "AsyncWebCrawler",
+          "status": "UNCERTAIN",
+          "confidence": 0.8
+        },
+        {
+          "method_name": "arun",
+          "class_name": "AsyncWebCrawler",
+          "status": "UNCERTAIN",
+          "confidence": 0.8
+        },
+        {
+          "method_name": "arun_many",
+          "class_name": "AsyncWebCrawler",
+          "status": "UNCERTAIN",
+          "confidence": 0.8
+        },
+        {
+          "method_name": "__aexit__",
+          "class_name": "AsyncWebCrawler",
+          "status": "UNCERTAIN",
+          "confidence": 0.8
+        },
+        {
+          "method_name": "arun",
+          "class_name": "AsyncWebCrawler",
+          "status": "UNCERTAIN",
+          "confidence": 0.8
+        },
+        {
+          "method_name": "arun_many",
+          "class_name": "AsyncWebCrawler",
+          "status": "UNCERTAIN",
+          "confidence": 0.8
+        }
+      ],
+      "attributes_accessed": [],
+      "functions_called": []
+    },
+    {
+      "module_name": "utils",
+      "import_status": "UNCERTAIN",
+      "import_confidence": 0.8,
+      "classes_used": [
+        {
+          "class_name": "get_postgres_conn",
+          "status": "UNCERTAIN",
+          "confidence": 0.8
+        },
+        {
+          "class_name": "extract_source_summary",
+          "status": "UNCERTAIN",
+          "confidence": 0.8
+        },
+        {
+          "class_name": "search_documents",
+          "status": "UNCERTAIN",
+          "confidence": 0.8
+        },
+        {
+          "class_name": "search_documents",
+          "status": "UNCERTAIN",
+          "confidence": 0.8
+        },
+        {
+          "class_name": "search_code_examples_impl",
+          "status": "UNCERTAIN",
+          "confidence": 0.8
+        },
+        {
+          "class_name": "search_code_examples_impl",
+          "status": "UNCERTAIN",
+          "confidence": 0.8
+        },
+        {
+          "class_name": "extract_code_blocks",
+          "status": "UNCERTAIN",
+          "confidence": 0.8
+        },
+        {
+          "class_name": "extract_code_blocks",
+          "status": "UNCERTAIN",
+          "confidence": 0.8
+        }
+      ],
+      "methods_called": [
+        {
+          "method_name": "cursor",
+          "class_name": "get_postgres_conn",
+          "status": "UNCERTAIN",
+          "confidence": 0.8
+        },
+        {
+          "method_name": "cursor",
+          "class_name": "get_postgres_conn",
+          "status": "UNCERTAIN",
+          "confidence": 0.8
+        },
+        {
+          "method_name": "cursor",
+          "class_name": "get_postgres_conn",
+          "status": "UNCERTAIN",
+          "confidence": 0.8
+        },
+        {
+          "method_name": "cursor",
+          "class_name": "get_postgres_conn",
+          "status": "UNCERTAIN",
+          "confidence": 0.8
+        },
+        {
+          "method_name": "cursor",
+          "class_name": "get_postgres_conn",
+          "status": "UNCERTAIN",
+          "confidence": 0.8
+        },
+        {
+          "method_name": "close",
+          "class_name": "get_postgres_conn",
+          "status": "UNCERTAIN",
+          "confidence": 0.8
+        }
+      ],
+      "attributes_accessed": [
+        {
+          "attribute_name": "cursor",
+          "class_name": "get_postgres_conn",
+          "status": "UNCERTAIN",
+          "confidence": 0.8
+        },
+        {
+          "attribute_name": "cursor",
+          "class_name": "get_postgres_conn",
+          "status": "UNCERTAIN",
+          "confidence": 0.8
+        },
+        {
+          "attribute_name": "cursor",
+          "class_name": "get_postgres_conn",
+          "status": "UNCERTAIN",
+          "confidence": 0.8
+        },
+        {
+          "attribute_name": "cursor",
+          "class_name": "get_postgres_conn",
+          "status": "UNCERTAIN",
+          "confidence": 0.8
+        },
+        {
+          "attribute_name": "cursor",
+          "class_name": "get_postgres_conn",
+          "status": "UNCERTAIN",
+          "confidence": 0.8
+        }
+      ],
+      "functions_called": [
+        {
+          "function_name": "generate_code_example_summary",
+          "status": "UNCERTAIN",
+          "confidence": 0.8
+        },
+        {
+          "function_name": "add_documents_to_postgres",
+          "status": "UNCERTAIN",
+          "confidence": 0.8
+        },
+        {
+          "function_name": "add_documents_to_postgres",
+          "status": "UNCERTAIN",
+          "confidence": 0.8
+        },
+        {
+          "function_name": "add_code_examples_to_postgres",
+          "status": "UNCERTAIN",
+          "confidence": 0.8
+        },
+        {
+          "function_name": "add_code_examples_to_postgres",
+          "status": "UNCERTAIN",
+          "confidence": 0.8
+        },
+        {
+          "function_name": "extract_source_summary",
+          "status": "UNCERTAIN",
+          "confidence": 0.8
+        }
+      ]
+    },
+    {
+      "module_name": "knowledge_graph_validator",
+      "import_status": "UNCERTAIN",
+      "import_confidence": 0.8,
+      "classes_used": [
+        {
+          "class_name": "KnowledgeGraphValidator",
+          "status": "UNCERTAIN",
+          "confidence": 0.8
+        }
+      ],
+      "methods_called": [
+        {
+          "method_name": "validate_script",
+          "class_name": "KnowledgeGraphValidator",
+          "status": "UNCERTAIN",
+          "confidence": 0.8
+        },
+        {
+          "method_name": "initialize",
+          "class_name": "KnowledgeGraphValidator",
+          "status": "UNCERTAIN",
+          "confidence": 0.8
+        }
+      ],
+      "attributes_accessed": [],
+      "functions_called": []
+    },
+    {
+      "module_name": "parse_repo_into_neo4j",
+      "import_status": "UNCERTAIN",
+      "import_confidence": 0.8,
+      "classes_used": [
+        {
+          "class_name": "DirectNeo4jExtractor",
+          "status": "UNCERTAIN",
+          "confidence": 0.8
+        }
+      ],
+      "methods_called": [
+        {
+          "method_name": "analyze_repository",
+          "class_name": "DirectNeo4jExtractor",
+          "status": "UNCERTAIN",
+          "confidence": 0.8
+        },
+        {
+          "method_name": "initialize",
+          "class_name": "DirectNeo4jExtractor",
+          "status": "UNCERTAIN",
+          "confidence": 0.8
+        }
+      ],
+      "attributes_accessed": [
+        {
+          "attribute_name": "driver",
+          "class_name": "DirectNeo4jExtractor",
+          "status": "UNCERTAIN",
+          "confidence": 0.8
+        },
+        {
+          "attribute_name": "driver",
+          "class_name": "DirectNeo4jExtractor",
+          "status": "UNCERTAIN",
+          "confidence": 0.8
+        },
+        {
+          "attribute_name": "driver",
+          "class_name": "DirectNeo4jExtractor",
+          "status": "UNCERTAIN",
+          "confidence": 0.8
+        }
+      ],
+      "functions_called": []
+    },
+    {
+      "module_name": "ai_script_analyzer",
+      "import_status": "UNCERTAIN",
+      "import_confidence": 0.8,
+      "classes_used": [
+        {
+          "class_name": "AIScriptAnalyzer",
+          "status": "UNCERTAIN",
+          "confidence": 0.8
+        }
+      ],
+      "methods_called": [
+        {
+          "method_name": "analyze_script",
+          "class_name": "AIScriptAnalyzer",
+          "status": "UNCERTAIN",
+          "confidence": 0.8
+        }
+      ],
+      "attributes_accessed": [
+        {
+          "attribute_name": "analyze_script",
+          "class_name": "AIScriptAnalyzer",
+          "status": "UNCERTAIN",
+          "confidence": 0.8
+        }
+      ],
+      "functions_called": []
+    },
+    {
+      "module_name": "hallucination_reporter",
+      "import_status": "UNCERTAIN",
+      "import_confidence": 0.8,
+      "classes_used": [
+        {
+          "class_name": "HallucinationReporter",
+          "status": "UNCERTAIN",
+          "confidence": 0.8
+        }
+      ],
+      "methods_called": [
+        {
+          "method_name": "generate_comprehensive_report",
+          "class_name": "HallucinationReporter",
+          "status": "UNCERTAIN",
+          "confidence": 0.8
+        }
+      ],
+      "attributes_accessed": [
+        {
+          "attribute_name": "generate_comprehensive_report",
+          "class_name": "HallucinationReporter",
+          "status": "UNCERTAIN",
+          "confidence": 0.8
+        }
+      ],
+      "functions_called": []
+    }
+  ],
+  "validation_details": {
+    "valid_items": [],
+    "invalid_items": [],
+    "uncertain_items": [],
+    "not_found_items": []
+  },
+  "hallucinations_detected": [],
+  "recommendations": [
+    "No hallucinations detected in knowledge graph libraries. External library usage appears to be working as expected."
+  ]
+}
