@@ -31,8 +31,8 @@ def get_postgres_conn():
         psycopg2 connection instance
     """
     import os
-    host = os.getenv("POSTGRES_HOST", "172.20.34.142")
-    port = os.getenv("POSTGRES_PORT", "5999")
+    host = os.getenv("POSTGRES_HOST", "localhost")
+    port = os.getenv("POSTGRES_PORT", "5432")
     db = os.getenv("POSTGRES_DB", "postgres")
     user = os.getenv("POSTGRES_USER", "postgres")
     password = os.getenv("POSTGRES_PASSWORD", "postgres")

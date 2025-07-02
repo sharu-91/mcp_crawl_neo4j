@@ -210,6 +210,10 @@ async def crawl4ai_lifespan(server: FastMCP) -> AsyncIterator[Crawl4AIContext]:
         await crawler.__aexit__(None, None, None)
         if pg_conn:
             pg_conn.close()
+        if knowledge_validator:
+            await knowledge_validator.close()
+        if repo_extractor:
+            await repo_extractor.close()
 
 # Initialize FastMCP server
 mcp = FastMCP(
