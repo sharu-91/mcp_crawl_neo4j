@@ -185,9 +185,12 @@ class AIHallucinationDetector:
         print(f"Total Hallucinations: {total_hallucinations}")
         
         print(f"\nAggregated Results:")
-        print(f"  ✅ Valid: {total_valid} ({total_valid/total_validations:.1%})")
-        print(f"  ❌ Invalid: {total_invalid} ({total_invalid/total_validations:.1%})")
-        print(f"  🔍 Not Found: {total_not_found} ({total_not_found/total_validations:.1%})")
+        if total_validations > 0:
+            print(f"  ✅ Valid: {total_valid} ({total_valid/total_validations:.1%})")
+            print(f"  ❌ Invalid: {total_invalid} ({total_invalid/total_validations:.1%})")
+            print(f"  🔍 Not Found: {total_not_found} ({total_not_found/total_validations:.1%})")
+        else:
+            print("  No validations to aggregate.")
         
         # Show worst performing scripts
         print(f"\n🚨 Scripts with Most Hallucinations:")
